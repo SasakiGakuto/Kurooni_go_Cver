@@ -50,7 +50,7 @@ app.post('/api/sessions',(q,r)=>{
 app.post('/api/events',(q,r)=>{
   const x=q.body;
   if(!uuidPattern.test(x?.session_id||'')||!uuidPattern.test(x?.visitor_id||'')||!x?.event_type)return r.status(400).json({error:'valid visitor_id, session_id, and event_type are required'});
-  const known=['session_started','utterance_shown','daily_utterance_shown','daily_utterance_deferred','detail_opened','external_link_click','sulky_shown','sulky_check','manual_location_changed','return_guidance_started','station_returned','session_finished','gps_fix','gps_error','shared_area_entered','shared_area_exited','shared_area_utterance_due','exploration_area_enter','exploration_area_exit','exploration_start','spot_discovered','spot_utterance_shown','debug_manual'];
+  const known=['session_started','utterance_shown','daily_utterance_shown','daily_utterance_deferred','detail_opened','external_link_click','sulky_shown','sulky_check','manual_location_changed','return_guidance_started','return_warning_shown','train_changed','station_returned','session_finished','gps_fix','gps_error','shared_area_entered','shared_area_exited','shared_area_utterance_due','exploration_area_enter','exploration_area_exit','exploration_start','spot_discovered','spot_utterance_shown','debug_manual'];
   if(!known.includes(x.event_type))return r.status(400).json({error:'unsupported event_type'});
   const owner=db.prepare('SELECT visitor_id FROM sessions WHERE session_id=?').get(x.session_id) as {visitor_id:string|null}|undefined;
   if(owner?.visitor_id&&owner.visitor_id!==x.visitor_id)return r.status(403).json({error:'visitor does not own this session'});
@@ -58,6 +58,7 @@ app.post('/api/events',(q,r)=>{
   db.prepare(`INSERT OR IGNORE INTO event_logs(visitor_id,session_id,event_type,timestamp,spot_id,topic_id,emotion,utterance_id,candidate_emotions,selection_weights,notification_played,arrival_method,payload) VALUES(@visitor_id,@session_id,@event_type,@timestamp,@spot_id,@topic_id,@emotion,@utterance_id,@candidate_emotions,@selection_weights,@notification_played,@arrival_method,@payload)`).run({
     visitor_id:x.visitor_id,session_id:x.session_id,event_type:x.event_type,timestamp:x.timestamp||x.clicked_at||new Date().toISOString(),spot_id:x.spot_id||null,topic_id:x.topic_id||null,emotion:x.emotion||null,utterance_id:x.utterance_id||x.daily_utterance_id||null,candidate_emotions:JSON.stringify(x.candidate_emotions||[]),selection_weights:JSON.stringify(x.selection_weights||{}),notification_played:x.notification_played==null?null:Number(Boolean(x.notification_played)),arrival_method:x.arrival_method||null,payload:JSON.stringify(x)
   });
+  if(x.event_type==='train_changed')db.prepare('UPDATE sessions SET train_time=?,train_direction=? WHERE session_id=? AND visitor_id=?').run(x.new_train||null,x.train_direction||null,x.session_id,x.visitor_id);
   if(x.event_type==='session_finished')db.prepare('UPDATE sessions SET status="ended",finished_at=? WHERE session_id=? AND visitor_id=?').run(x.finished_at||x.timestamp||new Date().toISOString(),x.session_id,x.visitor_id);
   r.json({ok:true});
 });

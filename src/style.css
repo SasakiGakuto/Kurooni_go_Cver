@@ -213,3 +213,17 @@
 .mainShell .discoveryImage{max-width:92%;}
 .mainShell>.discoveryPanel{height:38dvh;flex-basis:38dvh;max-height:38dvh}
 .mainShell .discoveryCardBody>strong{padding-left:3ch;text-align:center;font-size:clamp(15px,3.8vw,20px)}
+.mainShell>.statusPanel{position:relative;z-index:6;overflow:visible}
+.mainShell>.statusPanel .statusRow:first-child{position:relative}
+.mainShell>.statusPanel .statusRow:first-child>.locationPickerToggle{display:flex;flex:none;align-items:center;justify-content:center;gap:3px;min-height:36px;padding:6px 8px;border:1px solid #b8dfd1;border-radius:12px;background:#f5fbf8;color:#00624f;font-size:12px;font-weight:700;white-space:nowrap}
+.locationPickerToggle svg{transform:rotate(90deg)}
+.locationPicker{position:absolute;z-index:7;top:calc(100% + 8px);right:0;width:min(320px,88vw);padding:8px;border:1px solid #b8dfd1;border-radius:16px;background:#fff;box-shadow:0 8px 24px #153d3630}
+.locationPicker>button{display:grid;width:100%;gap:4px;padding:11px 10px;border:0;border-radius:10px;background:transparent;text-align:left}
+.locationPicker>button+button{border-top:1px solid #e6efeb;border-radius:0}
+.locationPicker>button:hover{background:#f1faf5}
+.locationPicker strong{color:#005d4e;font-size:14px}
+.locationPicker small{color:#66798b;font-size:12px;line-height:1.45}
+.mainShell>.statusPanel .trainTime.urgent,.mainShell>.statusPanel .trainTime.urgent small{color:#c52c2c!important}
+.mainShell .returnWarningActions{justify-content:flex-end;margin-top:8px;padding-top:8px;border-top:1px solid #e4eeea}
+.mainShell .returnTrainChangeButton{width:auto;min-height:40px;margin-left:auto;padding:6px 13px;border:1px solid #e79a42;border-radius:999px;background:#e88924;color:#fff;box-shadow:none;font-size:13px;white-space:nowrap}
+.mainShell .returnTrainChangeButton:hover{background:#d97512}
