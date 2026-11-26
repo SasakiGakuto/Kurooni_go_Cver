@@ -13,6 +13,20 @@ npm run dev
 
 PCでは `http://localhost:5173` を開きます。Express APIはポート3001で起動し、Viteが `/api` を転送します。本番ビルドは `npm run build`、生成物は `dist/` です。本番起動は `npm start`（ポート3001）です。
 
+## Vercelへのデプロイ
+
+このリポジトリはViteのフロントエンドをVercelへ静的配信し、`api/[...path].ts` をVercel Functionsとして実行します。デプロイ前にSupabaseのPostgresデータベースを用意してください。Vercel Functionsの一時ファイルシステムにはログを保存できないため、SQLiteではなく外部データベースを使います。
+
+1. VercelでこのGitHubリポジトリをインポートします。Framework PresetはVite、Build Commandは `npm run build)、Output Directoryは `dist` です。
+2. Supabaseでプロジェクトを作成し、SQL Editorから `supabase/schema.sql` を一度実行します。
+3. VercelのProject Settings → Environment Variablesに、次の値をProductionとPreview（必要に応じてDevelopmentにも）登録します。
+   - `SUPABASE_URL`: SupabaseプロジェクトURL
+   - `SUPABASE_SERVICE_ROLE_KEY`: Supabaseのservice_roleキー。秘密情報として扱い、`VITE_` を付けず、クライアントコードには置かないでください。
+   - `ADMIN_TOKEN`: 管理CSV出力用の長く推測されにくい秘密値
+4. 環境変数を登録した後に再デプロイします。GitHub連携を有効にすると、以降はこのリポジトリへのプッシュでVercelが再デプロイします。
+
+ヘルスチェックと日常セリフはデータベースなしでも応答します。セッション・イベント記録とCSV出力にはSupabaseの設定が必要です。CSVは `/api/admin/events.csv?token=<ADMIN_TOKEN>` から取得できます。ローカルの `npm run dev` は従来どおりExpressとSQLiteを使います。
+
 ## スマートフォンとGPS
 
 このアプリはホーム画面に追加できるPWAです。スマートフォンからHTTPSの公開URLを開き、iPhoneはSafariの共有メニューから「ホーム画面に追加」、AndroidはChromeのメニューから「アプリをインストール」または「ホーム画面に追加」を選んでください。レイアウトはスマートフォン幅に対応し、インストール後はアプリ風の全画面で起動します。
