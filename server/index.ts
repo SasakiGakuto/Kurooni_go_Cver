@@ -26,7 +26,7 @@ try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_event_unique_session_finish O
 try{db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_event_unique_return_guidance ON event_logs(session_id) WHERE event_type='return_guidance_started'")}catch(error){console.warn('帰着案内イベントの重複防止インデックスを作成できません:',error)}
 try{
   const seeds=JSON.parse(readFileSync(path.resolve('src/daily-utterances.json'),'utf8')) as Array<{id:string;text:string;category:string;enabled:boolean;weight:number}>;
-  const put=db.prepare('INSERT OR IGNORE INTO daily_utterances(id,text,category,enabled,weight) VALUES(?,?,?,?,?)');
+  const put=db.prepare('INSERT INTO daily_utterances(id,text,category,enabled,weight) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET text=excluded.text');
   db.transaction((items:typeof seeds)=>{for(const item of items)put.run(item.id,item.text,item.category,Number(item.enabled),item.weight)})(seeds);
 }catch(error){console.warn('日常ひとりごとマスタを読み込めません:',error)}
 
